@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres
+    container_name: pgdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: postges
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  celery:
+    build: .
+    command: celery -A asynchronous_workers worker -l INFO
+    container_name: celery
+    network_mode: host
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - redis
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - '6379:6379'
+
+  converter:
+    image: openlabs/docker-wkhtmltopdf-aas
+    container_name: converter
+    ports:
+      - '80:80'
+
+volumes:
+  pgdata:
