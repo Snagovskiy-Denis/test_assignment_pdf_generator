@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 
 
 class FunctionalTest(APITestCase):
-    # fixtures = ['printers', 'checks_for_non_testing_printers']
+    fixtures = ['printers', 'checks_for_non_testing_printers']
 
     kitchen_printer_api_key: str = sha256(b'kitchen_printer').hexdigest()
     client_printer_api_key: str = sha256(b'client_printer').hexdigest()
@@ -56,7 +56,7 @@ class TestAssignment(FunctionalTest):
             1
         }
         check_id = new_order_data['id']
-        self.client.post(path='/create_checks/', data=new_order_data)
+        self.client.post(path='/create_checks/', data=new_order_data, format='json')
         sleep(0.5)  # wait while pdfs are generating or mock their creation?
 
         for api_key in self.kitchen_printer_api_key, self.client_printer_api_key:

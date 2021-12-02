@@ -1,0 +1,131 @@
+[
+  {
+    "model": "cheque_generator.check",
+    "pk": 1,
+    "fields": {
+      "printer_id": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+      "type": "kitchen",
+      "status": "new",
+      "pdf_file": "test.pdf",
+      "order": {
+        "id": 123456,
+        "price": 780,
+        "items": [
+          {
+            "name": "Вкусная пицца",
+            "quantity": 2,
+            "unit_price": 250
+          },
+          {
+            "name": "Не менее вкусные роллы",
+            "quantity": 1,
+            "unit_price": 280
+          }
+        ],
+        "address": "г. Уфа, ул. Ленина, д. 42",
+        "client": {
+          "name": "Иван",
+          "phone": 9173332222
+        },
+        "point_id": 1
+      }
+    }
+  },
+  {
+    "model": "cheque_generator.check",
+    "pk": 2,
+    "fields": {
+      "printer_id": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+      "type": "client",
+      "status": "new",
+      "pdf_file": "test.pdf",
+      "order": {
+        "id": 123456,
+        "price": 780,
+        "items": [
+          {
+            "name": "Вкусная пицца",
+            "quantity": 2,
+            "unit_price": 250
+          },
+          {
+            "name": "Не менее вкусные роллы",
+            "quantity": 1,
+            "unit_price": 280
+          }
+        ],
+        "address": "г. Уфа, ул. Ленина, д. 42",
+        "client": {
+          "name": "Иван",
+          "phone": 9173332222
+        },
+        "point_id": 1
+      }
+    }
+  },
+
+  {
+    "model": "cheque_generator.check",
+    "pk": 3,
+    "fields": {
+      "printer_id": "60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752",
+      "type": "kitchen",
+      "status": "new",
+      "pdf_file": "test.pdf",
+      "order": {
+        "id": 123456,
+        "price": 780,
+        "items": [
+          {
+            "name": "Вкусная пицца",
+            "quantity": 2,
+            "unit_price": 250
+          },
+          {
+            "name": "Не менее вкусные роллы",
+            "quantity": 1,
+            "unit_price": 280
+          }
+        ],
+        "address": "г. Уфа, ул. Ленина, д. 42",
+        "client": {
+          "name": "Иван",
+          "phone": 9173332222
+        },
+        "point_id": 1
+      }
+    }
+  },
+  {
+    "model": "cheque_generator.check",
+    "pk": 4,
+    "fields": {
+      "printer_id": "fd61a03af4f77d870fc21e05e7e80678095c92d808cfb3b5c279ee04c74aca13",
+      "type": "kitchen",
+      "status": "new",
+      "pdf_file": "test.pdf",
+      "order": {
+        "id": 123456,
+        "price": 780,
+        "items": [
+          {
+            "name": "Вкусная пицца",
+            "quantity": 2,
+            "unit_price": 250
+          },
+          {
+            "name": "Не менее вкусные роллы",
+            "quantity": 1,
+            "unit_price": 280
+          }
+        ],
+        "address": "г. Уфа, ул. Ленина, д. 42",
+        "client": {
+          "name": "Иван",
+          "phone": 9173332222
+        },
+        "point_id": 1
+      }
+    }
+  }
+]

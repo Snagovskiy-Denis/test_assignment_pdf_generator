@@ -1,0 +1,56 @@
+[
+    {
+        "model": "cheque_generator.printer",
+        "pk": "9b4e3204397c71e21309885b29d18f5006c6f74086fba7da53e35913e54c7309",
+        "fields": {
+            "name": "Xerox",
+            "check_type": "kitchen",
+            "point_id": 1
+        }
+    },
+    {
+        "model": "cheque_generator.printer",
+        "pk": "f7e0bffd7c02b5957cb935c0424a765c839e03c8f0f2cb17781caec92da8984c",
+        "fields": {
+            "name": "Xerox",
+            "check_type": "client",
+            "point_id": 1
+        }
+    },
+    {
+        "model": "cheque_generator.printer",
+        "pk": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        "fields": {
+            "name": "Xerox",
+            "check_type": "kitchen",
+            "point_id": 2
+        }
+    },
+    {
+        "model": "cheque_generator.printer",
+        "pk": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        "fields": {
+            "name": "Xerox",
+            "check_type": "client",
+            "point_id": 2
+        }
+    },
+    {
+        "model": "cheque_generator.printer",
+        "pk": "60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752",
+        "fields": {
+            "name": "Xerox",
+            "check_type": "kitchen",
+            "point_id": 2
+        }
+    },
+    {
+        "model": "cheque_generator.printer",
+        "pk": "fd61a03af4f77d870fc21e05e7e80678095c92d808cfb3b5c279ee04c74aca13",
+        "fields": {
+            "name": "Xerox",
+            "check_type": "kitchen",
+            "point_id": 2
+        }
+    }
+]
