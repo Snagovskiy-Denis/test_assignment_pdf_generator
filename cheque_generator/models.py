@@ -24,7 +24,7 @@ class Check(models.Model):
     type = models.CharField(max_length=7, choices=CheckTypes.choices)
     order = models.JSONField()
     status = models.CharField(max_length=8, choices=CheckStatus.choices)
-    pdf_file = models.FileField()
+    pdf_file = models.FileField(blank=True)
 
     def clean(self) -> None:
         if self.printer_id.check_type != self.type:

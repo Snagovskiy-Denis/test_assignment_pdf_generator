@@ -1,11 +1,14 @@
+from unittest.mock import patch, call
 from hashlib import sha256
+
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from cheque_generator.models import Check
+from cheque_generator.models import Check, Printer
 
 
 class CreateChecksTest(APITestCase):
+    fixtures = ['printers']
 
     url = '/create_checks/'
 
@@ -32,11 +35,44 @@ class CreateChecksTest(APITestCase):
         'point_id': 1
     }
 
-    def test_post_creates_check_in_database(self):
-        pass
+    def post_json(self, data: dict):
+        return self.client.post(path=self.url, data=data, format='json')
 
-    def test_post_creates_multiple_checks_in_database(self):
-        pass
+    def test_post_returns_200_json(self):
+        response = self.post_json(data=self.request_body)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual({'ok': 'Чеки успешно созданы'}, response.json())
+
+    @patch('cheque_generator.views.create_pdf_for_check')
+    def test_post_creates_check_for_each_printer_on_point(self, _):
+        cheks_before_post = Check.objects.count()
+
+        self.post_json(data=self.request_body)
+
+        self.assertEqual(cheks_before_post + 2, Check.objects.count())
+        for printer in Printer.objects.filter(point_id=1):
+            self.assertEqual(printer.check_set.count(), 1)
+            created_check = printer.check_set.first()
+            self.assertTrue(created_check.type == printer.check_type)
+            self.assertTrue(created_check.status == 'new')
+            self.assertTrue(created_check.order == self.request_body)
+
+    @patch('cheque_generator.views.create_pdf_for_check')
+    def test_post_calls_task_that_generate_pdf_file(
+            self, mock_create_pdf_for_check):
+        self.post_json(data=self.request_body)
+        self.assertEqual(mock_create_pdf_for_check.call_count, 2)
+        created_checks = Check.objects.all()
+        for check in created_checks:
+            expected_call = {
+                'id': check.id,
+                'printer_id': check.printer_id.api_key,
+                'type': check.printer_id.check_type,
+                'status': 'new',
+                'pdf_file': None,
+                'order': self.request_body,
+            }
+            mock_create_pdf_for_check.assert_any_call(expected_call)
 
     def test_post_returns_400_if_this_order_checks_are_already_exists(self):
         pass

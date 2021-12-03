@@ -16,13 +16,13 @@ class FunctionalTest(APITestCase):
 
     def assertNoNewChecksForPrinter(self, api_key: str) -> None:
         printer_checks = self.get_new_checks_for_printer(api_key)
-        num_of_checks = len(printer_checks.get('checks'))
+        num_of_checks = len(printer_checks)
         self.assertEqual(num_of_checks, 0)
 
     def get_new_checks_for_printer(self, api_key: str) -> dict:
         path = '/new_checks/'
         data = {'api_key': api_key}
-        return self.client.get(path=path, data=data).json()
+        return self.client.get(path=path, data=data).json().get('checks')
 
 
 class TestAssignment(FunctionalTest):

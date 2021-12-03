@@ -20,6 +20,5 @@ class CheckTest(TestCase):
                 type=CheckTypes.KITCHEN,
                 order={'test': 1},
                 status=Check.CheckStatus.NEW,
-                pdf_file=SimpleUploadedFile('test.pdf', b'pdf-file'),
             ).full_clean()
         self.assertIn(f'prints {CheckTypes.CLIENT} checks', str(e.exception))
