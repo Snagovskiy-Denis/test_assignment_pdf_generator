@@ -5,6 +5,6 @@ from . import views
 
 urlpatterns = [
         path('create_checks/', lambda request: None),
-        path('new_checks/', views.new_checks),
+        path('new_checks/', views.NewChekcs.as_view()),
         path('check/', lambda request: None),
 ]

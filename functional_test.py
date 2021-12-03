@@ -16,7 +16,7 @@ class FunctionalTest(APITestCase):
 
     def assertNoNewChecksForPrinter(self, api_key: str) -> None:
         printer_checks = self.get_new_checks_for_printer(api_key)
-        num_of_checks = len(printer_checks)
+        num_of_checks = len(printer_checks.get('checks'))
         self.assertEqual(num_of_checks, 0)
 
     def get_new_checks_for_printer(self, api_key: str) -> dict:

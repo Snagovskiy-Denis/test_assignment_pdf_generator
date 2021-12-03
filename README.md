@@ -12,7 +12,7 @@ Project main stack:
     - PostgreSQL
     - Redis
 
-![][.github/arch.png]
+![](.github/arch.png)
 
 
 # How to run

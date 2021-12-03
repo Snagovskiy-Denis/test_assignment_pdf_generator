@@ -49,7 +49,8 @@ class NewChecksTest(APITestCase):
     fixtures = ['printers', 'checks']
 
     url = '/new_checks/'
-    data = {'api_key': sha256(b'test2').hexdigest()}
+    data = {'api_key': sha256(b'test').hexdigest()}
+    api_key = sha256(b'test').hexdigest()
 
     def test_get_returns_200_with_json_content_type(self):
         response = self.client.get(path=self.url, data=self.data)
@@ -58,12 +59,19 @@ class NewChecksTest(APITestCase):
 
     def test_get_returns_list_of_checks(self):
         response = self.client.get(path=self.url, data=self.data)
-        expected = Check.objects.filter(printer_id=self.data['api_key'])
-        actual = response.json().get('checks')
-        self.assertEqual(expected, actual)
+        response_checks = response.json().get('checks')
+        response_checks_ids = [check['id'] for check in response_checks]
+        check1 = Check.objects.get(printer_id=self.api_key, type='kitchen')
+        check2 = Check.objects.get(printer_id=self.api_key, type='client')
+        self.assertIn(check1.id, response_checks_ids)
+        self.assertIn(check2.id, response_checks_ids)
 
     def test_get_with_invalid_api_key_returns_401(self):
-        pass
+        invalid_data = {'api_key': '1' * 64}
+        response = self.client.get(path=self.url, data=invalid_data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        expected = {'error': 'Не существует принтера с таким api_key'}
+        self.assertEqual(expected, response.json())
 
 
 class CheckTestCase(APITestCase):
