@@ -34,7 +34,7 @@ class CreateChecksTest(APITestCase):
             'name': 'Иван',
             'phone': 9173332222
         },
-        'point_id': 1
+        'point_id': '1',
     }
 
     def post_json(self, data: dict):
@@ -86,12 +86,33 @@ class CreateChecksTest(APITestCase):
         response = self.post_json(data=self.request_body)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Check.objects.count(), 2)
-        excpected_msg = {'order': 'Для данного заказа уже созданы чеки'}  
+        excpected_msg = {'order': 'Для данного заказа уже созданы чеки'}
         self.assertEqual(response.json(), excpected_msg)
         mock_create_pdf_for_check.assert_not_called()
 
     def test_post_returns_400_if_there_is_no_printers_in_given_point(
             self, mock_create_pdf_for_check):
+        invalid_request_body = self.request_body.copy()
+        invalid_request_body['point_id'] = 999
+        self.assertEqual(Printer.objects.filter(point_id=999).count(), 0)
+
+        response = self.post_json(data=invalid_request_body)
+
+        self.assertEqual(Check.objects.count(), 0)
+        expected_msg = {'error': 'Для данной точки не настроено ни одного принтера'}
+        self.assertEqual(response.json(), expected_msg)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        mock_create_pdf_for_check.assert_not_called()
+
+    def test_post_returns_400_if_point_id_is_not_numeric(
+            self, mock_create_pdf_for_check):
+        invalid_request_body = self.request_body.copy()
+        invalid_request_body['point_id'] = 'R-3PO'
+        response = self.post_json(data=invalid_request_body)
+        self.assertEqual(Check.objects.count(), 0)
+        expected_msg = {'order': 'point_id должен быть целым числом'}
+        self.assertEqual(response.json(), expected_msg)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         mock_create_pdf_for_check.assert_not_called()
 
 

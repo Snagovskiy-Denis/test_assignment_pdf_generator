@@ -33,8 +33,16 @@ class CreateChecks(APIView):
     '''Creates checks for orders and generates pdf-documents for them'''
 
     def post(self, request, format=None):
-        point_id = int(request.data.get('point_id', -1))
+        point_id = request.data.get('point_id', '')
+        if not type(point_id) == int and not point_id.isnumeric():
+            msg = {'order': 'point_id должен быть целым числом'}
+            return Response(msg, status.HTTP_400_BAD_REQUEST)
+
         point_printers = Printer.objects.filter(point_id=point_id)
+
+        if not point_printers:
+            msg = {'error': 'Для данной точки не настроено ни одного принтера'}
+            return Response(msg, status.HTTP_400_BAD_REQUEST)
 
         for printer in point_printers:
             data = {
