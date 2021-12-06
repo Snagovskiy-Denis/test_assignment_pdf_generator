@@ -46,9 +46,13 @@ class CreateChecks(APIView):
             serializer = CheckSerializer(data=data)
 
             if not serializer.is_valid():
-                raise Exception(serializer.error)
+                msg = serializer.errors
+                if serializer.errors.get('non_field_errors'):
+                    msg = {'order': 'Для данного заказа уже созданы чеки'}
+                return Response(msg, status.HTTP_400_BAD_REQUEST)
 
             serializer.save()
             create_pdf_for_check(serializer.data)
 
-        return Response({'ok': 'Чеки успешно созданы'}, status.HTTP_200_OK)
+        msg = {'ok': 'Чеки успешно созданы'}
+        return Response(msg, status.HTTP_200_OK)

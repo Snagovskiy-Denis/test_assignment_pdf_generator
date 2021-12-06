@@ -1,3 +1,4 @@
+from unittest import skip
 from unittest.mock import patch
 from hashlib import sha256
 
@@ -77,9 +78,16 @@ class CreateChecksTest(APITestCase):
 
     def test_post_returns_400_if_this_order_checks_are_already_exists(
             self, mock_create_pdf_for_check):
-        Check.objects.create()
-        check = Check.objects.first()
-        print(check)
+        self.post_json(data=self.request_body)
+        self.assertEqual(Check.objects.count(), 2)
+        mock_create_pdf_for_check.assert_called()
+        mock_create_pdf_for_check.reset_mock()
+
+        response = self.post_json(data=self.request_body)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Check.objects.count(), 2)
+        excpected_msg = {'order': 'Для данного заказа уже созданы чеки'}  
+        self.assertEqual(response.json(), excpected_msg)
         mock_create_pdf_for_check.assert_not_called()
 
     def test_post_returns_400_if_there_is_no_printers_in_given_point(

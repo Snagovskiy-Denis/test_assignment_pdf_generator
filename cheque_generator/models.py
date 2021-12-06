@@ -33,3 +33,6 @@ class Check(models.Model):
             api = self.printer_id.api_key
             printer_type = self.printer_id.check_type
             raise ValidationError(msg.format(api, printer_type, self.type))
+
+    class Meta:
+        unique_together = ('order', 'printer_id')

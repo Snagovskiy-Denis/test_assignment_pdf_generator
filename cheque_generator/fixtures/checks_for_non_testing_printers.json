@@ -8,7 +8,7 @@
       "status": "new",
       "pdf_file": "test.pdf",
       "order": {
-        "id": 123456,
+        "id": 1,
         "price": 780,
         "items": [
           {
@@ -40,7 +40,7 @@
       "status": "new",
       "pdf_file": "test.pdf",
       "order": {
-        "id": 123456,
+        "id": 2,
         "price": 780,
         "items": [
           {
@@ -73,7 +73,7 @@
       "status": "new",
       "pdf_file": "test.pdf",
       "order": {
-        "id": 123456,
+        "id": 3,
         "price": 780,
         "items": [
           {
@@ -105,7 +105,7 @@
       "status": "new",
       "pdf_file": "test.pdf",
       "order": {
-        "id": 123456,
+        "id": 4,
         "price": 780,
         "items": [
           {
