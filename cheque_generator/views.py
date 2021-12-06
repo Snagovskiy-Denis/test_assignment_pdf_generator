@@ -6,13 +6,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics
 from rest_framework.serializers import ValidationError
+from drf_pdf.response import PDFResponse
+from drf_pdf.renderer import PDFRenderer
 
 from cheque_generator.models import Check, Printer
 from cheque_generator.serializers import CheckSerializer
 from cheque_generator.tasks import create_pdf_for_check
 
 
-class NewChekcs(APIView):
+class NewChekcsView(APIView):
     '''List checks available for printing'''
 
     def get(self, request, format=None):
@@ -29,7 +31,7 @@ class NewChekcs(APIView):
         return Response({'checks': serializer.data}, status.HTTP_200_OK)
 
 
-class CreateChecks(APIView):
+class CreateChecksView(APIView):
     '''Creates checks for orders and generates pdf-documents for them'''
 
     def post(self, request, format=None):
@@ -64,3 +66,38 @@ class CreateChecks(APIView):
 
         msg = {'ok': 'Чеки успешно созданы'}
         return Response(msg, status.HTTP_200_OK)
+
+
+class CheckView(APIView):
+    '''Return pdf-file of requested Check object'''
+
+    render_classes = (PDFRenderer, )
+
+    def get(self, request, format=None):
+        api_key = request.query_params.get('api_key')
+
+        try:
+            printer = Printer.objects.get(api_key=api_key)
+        except Printer.DoesNotExist:
+            # AuthenticationFailed don't return 401 because of standards
+            # raise AuthenticationFailed(code=status.HTTP_401_UNAUTHORIZED)
+            msg = {'error': 'Не существует принтера с таким api_key'}
+            return Response(msg, status.HTTP_401_UNAUTHORIZED)
+
+        check_id = request.query_params.get('check_id')
+
+        try:
+            check = Check.objects.get(printer_id=printer.api_key, id=check_id)
+        except Check.DoesNotExist:
+            msg = {'error': 'Данного чека не существует'}
+            return Response(msg, status.HTTP_400_BAD_REQUEST)
+
+        if not check.pdf_file:
+            msg = {'error': 'Для данного чека не сгенерирован PDF-файл'}
+            return Response(msg, status.HTTP_400_BAD_REQUEST)
+
+        return PDFResponse(
+            pdf=check.pdf_file,
+            file_name=check.pdf_file.name.rstrip('.pdf'),
+            status=status.HTTP_200_OK
+        )

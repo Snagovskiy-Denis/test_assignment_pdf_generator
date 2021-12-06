@@ -52,19 +52,19 @@ class TestAssignment(FunctionalTest):
                 'name': 'Иван',
                 'phone': 9173332222
             },
-            'point_id':
-            1
+            'point_id': '1'
         }
-        check_id = new_order_data['id']
+        check_oder_id = new_order_data['id']
         self.client.post(path='/create_checks/', data=new_order_data, format='json')
         sleep(0.5)  # wait while pdfs are generating or mock their creation?
 
         for api_key in self.kitchen_printer_api_key, self.client_printer_api_key:
             new_checks = self.get_new_checks_for_printer(api_key)
             self.assertEqual(len(new_checks), 1)
-            self.assertEqual(new_checks[0]['id'], check_id)
+            check = new_checks[0]
+            self.assertEqual(check['order']['id'], check_oder_id)
 
-            check_data = { 'api_key': api_key, 'check_id': check_id }
+            check_data = { 'api_key': api_key, 'check_id': check['id'] }
             response = self.client.get(path='/check/', data=check_data)
             self.assertIsPdfFile(response)
 

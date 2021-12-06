@@ -6,7 +6,7 @@
       "printer_id": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
       "type": "kitchen",
       "status": "new",
-      "pdf_file": "test.pdf",
+      "pdf_file": "pdf/1_kitchen.pdf",
       "order": {
         "id": 1,
         "price": 780,
@@ -38,7 +38,7 @@
       "printer_id": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
       "type": "client",
       "status": "new",
-      "pdf_file": "test.pdf",
+      "pdf_file": "",
       "order": {
         "id": 2,
         "price": 780,
@@ -71,7 +71,7 @@
       "printer_id": "60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752",
       "type": "kitchen",
       "status": "new",
-      "pdf_file": "test.pdf",
+      "pdf_file": "",
       "order": {
         "id": 3,
         "price": 780,
@@ -103,7 +103,7 @@
       "printer_id": "fd61a03af4f77d870fc21e05e7e80678095c92d808cfb3b5c279ee04c74aca13",
       "type": "kitchen",
       "status": "new",
-      "pdf_file": "test.pdf",
+      "pdf_file": "",
       "order": {
         "id": 4,
         "price": 780,

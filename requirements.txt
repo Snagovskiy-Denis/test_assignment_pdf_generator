@@ -4,3 +4,4 @@ redis==4.0.2
 celery==5.2.1
 djangorestframework==3.12.4
 django-redis==5.0.0
+drf-pdf==0.2.0

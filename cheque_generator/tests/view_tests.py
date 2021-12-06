@@ -150,14 +150,37 @@ class CheckTestCase(APITestCase):
 
     url = '/check/'
 
+    data = {'api_key': sha256(b'test').hexdigest(), 'check_id': 1}
+
+    @skip
     def test_get_200_return_pdf_file(self):
-        pass
+        response = self.client.get(path=self.url, data=self.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response['content-type'], 'application/pdf')
+        filename = 'filename="pdf/1_kitchen.pdf"'
+        self.assertEqual(response['content-disposition'], filename)
 
     def test_get_returns_400_if_requested_check_does_not_exist(self):
-        pass
+        invalid_data = self.data.copy()
+        invalid_data['check_id'] = 999
+        self.assertEqual(Check.objects.filter(id=999).count(), 0)
+        response = self.client.get(path=self.url, data=invalid_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        expected_msg = {'error': 'Данного чека не существует'}
+        self.assertEqual(expected_msg, response.json())
 
-    def test_get_returns_400_if_there_is_not_pdf_file_for_requested_check(self):
-        pass
+    @patch('cheque_generator.views.Check')
+    def test_get_returns_400_if_there_is_not_pdf_file_for_requested_check(
+            self, mock_Check):
+        mock_Check.objects.get().pdf_file.__bool__.return_value = False
+        response = self.client.get(path=self.url, data=self.data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        expected_msg = {'error': 'Для данного чека не сгенерирован PDF-файл'}
+        self.assertEqual(expected_msg, response.json())
 
     def test_get_with_invalid_api_key_returns_401(self):
-        pass
+        invalid_data = {'api_key': '1' * 64, 'check_id': 1}
+        response = self.client.get(path=self.url, data=invalid_data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        expected_msg = {'error': 'Не существует принтера с таким api_key'}
+        self.assertEqual(expected_msg, response.json())

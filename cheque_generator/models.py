@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 
+from asynchronous_workers.settings import CHECK_FILES_DIR
+
 
 class CheckTypes(models.TextChoices):
     KITCHEN = 'kitchen'
@@ -24,7 +26,7 @@ class Check(models.Model):
     type = models.CharField(max_length=7, choices=CheckTypes.choices)
     order = models.JSONField()
     status = models.CharField(max_length=8, choices=CheckStatus.choices)
-    pdf_file = models.FileField(blank=True)
+    pdf_file = models.FileField(blank=True, upload_to=CHECK_FILES_DIR)
 
     def clean(self) -> None:
         if self.printer_id.check_type != self.type:
