@@ -66,15 +66,7 @@ class CreateChecksTest(APITestCase):
         self.assertEqual(mock_create_pdf_for_check.call_count, 2)
         created_checks = Check.objects.all()
         for check in created_checks:
-            expected_call = {
-                'id': check.id,
-                'printer_id': check.printer_id.api_key,
-                'type': check.printer_id.check_type,
-                'status': 'new',
-                'pdf_file': None,
-                'order': self.request_body,
-            }
-            mock_create_pdf_for_check.assert_any_call(expected_call)
+            mock_create_pdf_for_check.assert_any_call(check)
 
     def test_post_returns_400_if_this_order_checks_are_already_exists(
             self, mock_create_pdf_for_check):
@@ -172,7 +164,7 @@ class CheckTestCase(APITestCase):
     @patch('cheque_generator.views.Check')
     def test_get_returns_400_if_there_is_not_pdf_file_for_requested_check(
             self, mock_Check):
-        mock_Check.objects.get().pdf_file.__bool__.return_value = False
+        mock_Check.objects.get().pdf_file.name.__bool__.return_value = False
         response = self.client.get(path=self.url, data=self.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         expected_msg = {'error': 'Для данного чека не сгенерирован PDF-файл'}
@@ -184,3 +176,6 @@ class CheckTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         expected_msg = {'error': 'Не существует принтера с таким api_key'}
         self.assertEqual(expected_msg, response.json())
+
+    def test_changes_status_of_check_after_download(self):
+        pass

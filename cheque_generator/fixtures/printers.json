@@ -52,5 +52,14 @@
             "check_type": "kitchen",
             "point_id": 2
         }
+    },
+    {
+        "model": "cheque_generator.printer",
+        "pk": "fd61a03af4f77d823323223232332278095c92d808cfb3b5c279ee04c74aca13",
+        "fields": {
+            "name": "Xerox",
+            "check_type": "client",
+            "point_id": 2
+        }
     }
 ]

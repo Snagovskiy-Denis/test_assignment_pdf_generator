@@ -1,5 +1,7 @@
+from unittest.mock import patch
 from hashlib import sha256
 from time import sleep
+from pathlib import Path
 
 from rest_framework.test import APITestCase
 
@@ -25,9 +27,16 @@ class FunctionalTest(APITestCase):
         return self.client.get(path=path, data=data).json().get('checks')
 
 
+@patch('cheque_generator.tasks.save_pdf_file')
 class TestAssignment(FunctionalTest):
 
-    def test_create_and_print_new_checks_for_point_with_2_printers(self):
+    def test_create_and_print_new_checks_for_point_with_2_printers(
+            self, mock_save_pdf_file):
+
+        directory = 'cheque_generator/templates/'
+        filenames = ('kitchen_check.html', 'client_check.html')
+        check_filenames = [directory + file for file in filenames]
+        mock_save_pdf_file.side_effect = check_filenames
 
         self.assertNoNewChecksForPrinter(self.kitchen_printer_api_key)
         self.assertNoNewChecksForPrinter(self.client_printer_api_key)
@@ -56,7 +65,6 @@ class TestAssignment(FunctionalTest):
         }
         check_oder_id = new_order_data['id']
         self.client.post(path='/create_checks/', data=new_order_data, format='json')
-        sleep(0.5)  # wait while pdfs are generating or mock their creation?
 
         for api_key in self.kitchen_printer_api_key, self.client_printer_api_key:
             new_checks = self.get_new_checks_for_printer(api_key)

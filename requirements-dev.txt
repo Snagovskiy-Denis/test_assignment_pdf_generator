@@ -9,3 +9,4 @@ ipython==7.29.0
 green==3.3.0
 django-redis==5.0.0
 drf-pdf==0.2.0
+requests==2.26.0

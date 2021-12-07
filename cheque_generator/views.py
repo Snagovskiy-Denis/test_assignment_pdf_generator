@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics
 from rest_framework.serializers import ValidationError
-from drf_pdf.response import PDFResponse
+from drf_pdf.response import PDFFileResponse, PDFResponse
 from drf_pdf.renderer import PDFRenderer
 
 from cheque_generator.models import Check, Printer
@@ -61,8 +61,8 @@ class CreateChecksView(APIView):
                     msg = {'order': 'Для данного заказа уже созданы чеки'}
                 return Response(msg, status.HTTP_400_BAD_REQUEST)
 
-            serializer.save()
-            create_pdf_for_check(serializer.data)
+            check = serializer.save()
+            create_pdf_for_check(check)
 
         msg = {'ok': 'Чеки успешно созданы'}
         return Response(msg, status.HTTP_200_OK)
@@ -92,12 +92,11 @@ class CheckView(APIView):
             msg = {'error': 'Данного чека не существует'}
             return Response(msg, status.HTTP_400_BAD_REQUEST)
 
-        if not check.pdf_file:
+        if not check.pdf_file.name:
             msg = {'error': 'Для данного чека не сгенерирован PDF-файл'}
             return Response(msg, status.HTTP_400_BAD_REQUEST)
 
-        return PDFResponse(
-            pdf=check.pdf_file,
-            file_name=check.pdf_file.name.rstrip('.pdf'),
+        return PDFFileResponse(
+            file_path=check.pdf_file.name,
             status=status.HTTP_200_OK
         )
