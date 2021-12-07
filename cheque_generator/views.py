@@ -26,7 +26,7 @@ class NewChekcsView(APIView):
             msg = {'error': 'Не существует принтера с таким api_key'}
             return Response(msg, status.HTTP_401_UNAUTHORIZED)
 
-        checks = Check.objects.filter(printer_id=api_key)
+        checks = Check.objects.filter(printer_id=api_key, status='new')
         serializer = CheckSerializer(checks, many=True)
         return Response({'checks': serializer.data}, status.HTTP_200_OK)
 
@@ -95,6 +95,9 @@ class CheckView(APIView):
         if not check.pdf_file.name:
             msg = {'error': 'Для данного чека не сгенерирован PDF-файл'}
             return Response(msg, status.HTTP_400_BAD_REQUEST)
+
+        check.status = Check.CheckStatus.PRINTED
+        check.save()
 
         return PDFFileResponse(
             file_path=check.pdf_file.name,

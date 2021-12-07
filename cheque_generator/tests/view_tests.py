@@ -136,6 +136,15 @@ class NewChecksTest(APITestCase):
         expected = {'error': 'Не существует принтера с таким api_key'}
         self.assertEqual(expected, response.json())
 
+    def test_do_not_return_printed_checks(self):
+        data = {'api_key': Check.objects.get(id=5).printer_id.api_key}
+        response = self.client.get(path=self.url, data=data)
+        checks = response.json()['checks']
+        self.assertEqual(len(checks), 1)
+        check = checks[0]
+        self.assertNotEqual(check['id'], 5)
+        self.assertNotEqual(check['status'], 'printed')
+
 
 class CheckTestCase(APITestCase):
     fixtures = ['printers', 'checks']
@@ -178,4 +187,11 @@ class CheckTestCase(APITestCase):
         self.assertEqual(expected_msg, response.json())
 
     def test_changes_status_of_check_after_download(self):
-        pass
+        check = Check.objects.get(id=4)
+        check.pdf_file.name = 'functional_test.py'
+        check.save()
+        self.assertEqual(check.status, 'new')
+        data = {'api_key': check.printer_id.api_key, 'check_id': 4}
+        response = self.client.get(path=self.url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Check.objects.get(id=4).status, 'printed')
