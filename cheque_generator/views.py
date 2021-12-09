@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics
 from rest_framework.serializers import ValidationError
-from drf_pdf.response import PDFFileResponse, PDFResponse
+from drf_pdf.response import PDFFileResponse
 from drf_pdf.renderer import PDFRenderer
 
 from cheque_generator.models import Check, Printer

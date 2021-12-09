@@ -35,8 +35,8 @@ class TestAssignment(FunctionalTest):
 
         directory = 'cheque_generator/templates/'
         filenames = ('kitchen_check.html', 'client_check.html')
-        check_filenames = [directory + file for file in filenames]
-        mock_save_pdf_file.side_effect = check_filenames
+        fake_files = [directory + file for file in filenames]
+        mock_save_pdf_file.side_effect = fake_files
 
         self.assertNoNewChecksForPrinter(self.kitchen_printer_api_key)
         self.assertNoNewChecksForPrinter(self.client_printer_api_key)
