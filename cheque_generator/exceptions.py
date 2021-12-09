@@ -7,6 +7,11 @@ class PrinterDoesNotExist(APIException):
     default_code = 'no_such_printer'
 
 
+class PointException(APIException):
+    status_code = 400
+    default_code = 'bad_request'
+
+
 class CheckError(APIException):
     status_code = 400
     default_code = 'bad_request'

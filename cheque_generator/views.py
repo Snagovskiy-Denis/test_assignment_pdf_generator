@@ -44,35 +44,40 @@ class NewChecksView(ValidatePrinterMixin, generics.ListAPIView):
 class CreateChecksView(APIView):
     '''Creates checks for orders and generates pdf-documents for them'''
 
-    def post(self, request, format=None):
-        point_id = request.data.get('point_id', '')
+    def get_all_printers_on_point(self):
+        point_id = self.request.data.get('point_id', '')
         if not type(point_id) == int and not point_id.isnumeric():
             msg = {'order': 'point_id должен быть целым числом'}
-            return Response(msg, status.HTTP_400_BAD_REQUEST)
+            raise PointException(msg)
 
         point_printers = Printer.objects.filter(point_id=point_id)
-
         if not point_printers:
             msg = {'error': 'Для данной точки не настроено ни одного принтера'}
-            return Response(msg, status.HTTP_400_BAD_REQUEST)
+            raise PointException(msg)
+        return point_printers
 
-        for printer in point_printers:
-            data = {
+    def post(self, request, format=None):
+        checks = []
+        for printer in self.get_all_printers_on_point():
+            checks.append({
                 'printer_id': printer.api_key,
                 'type': printer.check_type,
                 'status': 'new',
                 'order': request.data,
-            }
-            serializer = CheckSerializer(data=data)
+            })
 
-            if not serializer.is_valid():
-                msg = serializer.errors
-                if serializer.errors.get('non_field_errors'):
-                    msg = {'order': 'Для данного заказа уже созданы чеки'}
-                return Response(msg, status.HTTP_400_BAD_REQUEST)
+        serializer = CheckSerializer(data=checks, many=True)
 
-            check = serializer.save()
-            create_pdf_for_check(check)
+        if not serializer.is_valid():
+            msg = serializer.errors
+            for check in serializer.errors:
+                for error in check.get('non_field_errors'):
+                    if error and error.code == 'unique':
+                        msg = {'order': 'Для данного заказа уже созданы чеки'}
+            raise CheckError(msg)
+
+        for created_check in serializer.save():
+            create_pdf_for_check(created_check)
 
         return Response({'ok': 'Чеки успешно созданы'}, status.HTTP_200_OK)
 
