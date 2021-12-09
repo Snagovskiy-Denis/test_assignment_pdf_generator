@@ -1,34 +1,44 @@
-from django.shortcuts import render
-from rest_framework.exceptions import AuthenticationFailed
-
-from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics
-from rest_framework.serializers import ValidationError
 from drf_pdf.response import PDFFileResponse
 from drf_pdf.renderer import PDFRenderer
+from cheque_generator.exceptions import CheckDoesNotExist, CheckPdfFileDoesNotExist
 
 from cheque_generator.models import Check, Printer
 from cheque_generator.serializers import CheckSerializer
 from cheque_generator.tasks import create_pdf_for_check
+from cheque_generator.exceptions import *
 
 
-class NewChekcsView(APIView):
+class ValidatePrinterMixin:
+    '''Checks if printer with given api_key exist and raise error if not
+
+    Printer' api_key for validation is gotten from HTTP-request GET parameters
+    '''
+
+    def get(self, *args, **kwargs):
+        api_key = self.request.query_params.get('api_key')
+        try:
+            Printer.objects.get(api_key=api_key)
+        except Printer.DoesNotExist:
+            raise PrinterDoesNotExist()
+        return super().get(args, kwargs)
+
+
+class NewChecksView(ValidatePrinterMixin, generics.ListAPIView):
     '''List checks available for printing'''
+    queryset = Check.objects.all()
+    serializer_class = CheckSerializer
 
-    def get(self, request, format=None):
-        api_key = request.query_params.get('api_key')
+    def filter_queryset(self, queryset):
+        api_key = self.request.query_params.get('api_key')
+        return queryset.filter(printer_id__api_key=api_key, status='new')
 
-        if not Printer.objects.filter(api_key=api_key):
-            # AuthenticationFailed don't return 401 because of standards
-            # raise AuthenticationFailed(code=status.HTTP_401_UNAUTHORIZED)
-            msg = {'error': 'Не существует принтера с таким api_key'}
-            return Response(msg, status.HTTP_401_UNAUTHORIZED)
-
-        checks = Check.objects.filter(printer_id=api_key, status='new')
-        serializer = CheckSerializer(checks, many=True)
-        return Response({'checks': serializer.data}, status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        response.data = {'checks': response.data}
+        return response
 
 
 class CreateChecksView(APIView):
@@ -64,37 +74,25 @@ class CreateChecksView(APIView):
             check = serializer.save()
             create_pdf_for_check(check)
 
-        msg = {'ok': 'Чеки успешно созданы'}
-        return Response(msg, status.HTTP_200_OK)
+        return Response({'ok': 'Чеки успешно созданы'}, status.HTTP_200_OK)
 
 
-class CheckView(APIView):
+class CheckView(ValidatePrinterMixin, generics.RetrieveAPIView):
     '''Return pdf-file of requested Check object'''
 
     render_classes = (PDFRenderer, )
 
-    def get(self, request, format=None):
-        api_key = request.query_params.get('api_key')
-
+    def get_object(self):
+        check_id = self.request.query_params.get('check_id')
         try:
-            printer = Printer.objects.get(api_key=api_key)
-        except Printer.DoesNotExist:
-            # AuthenticationFailed don't return 401 because of standards
-            # raise AuthenticationFailed(code=status.HTTP_401_UNAUTHORIZED)
-            msg = {'error': 'Не существует принтера с таким api_key'}
-            return Response(msg, status.HTTP_401_UNAUTHORIZED)
-
-        check_id = request.query_params.get('check_id')
-
-        try:
-            check = Check.objects.get(printer_id=printer.api_key, id=check_id)
+            return Check.objects.get(id=check_id)
         except Check.DoesNotExist:
-            msg = {'error': 'Данного чека не существует'}
-            return Response(msg, status.HTTP_400_BAD_REQUEST)
+            raise CheckDoesNotExist()
 
-        if not check.pdf_file.name:
-            msg = {'error': 'Для данного чека не сгенерирован PDF-файл'}
-            return Response(msg, status.HTTP_400_BAD_REQUEST)
+    def retrieve(self, request, *args, **kwargs):
+        check = self.get_object()
+
+        if not check.pdf_file.name: raise CheckPdfFileDoesNotExist()
 
         check.status = Check.CheckStatus.PRINTED
         check.save()
